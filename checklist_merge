@@ -1,0 +1,86 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use utf8;
+binmode(STDOUT, ":utf8");
+
+use IO::File;
+use Text::CSV_XS;
+
+# 複数のチェックリストを読み込むので、それぞれのファイル名と識別子のペアを作る
+my %checklists;
+while(my $fname = shift)
+{
+	# ファイル名から識別子の素を取得
+	# ファイル名は「Cxx_${name}.csv」となっていると想定
+	# でも_で区切った残りを使っているだけなので、_区切りなら何でもOK。
+	my $ident_seed = (split /_/,$fname)[-1];
+
+	# 識別子の素の1文字目を取り、まだ使われてなければそれを識別子にしてファイル名を追加。
+	# 使われている場合は2文字目3文字目...と順に見ていって使われていない文字を探し出し、それを識別子にしてファイル名を追加。
+	my $ident = "";
+	for(my $cnt = 0; $cnt<length $ident_seed; $cnt++)
+	{
+		if(!exists($checklists{(split //,$ident_seed)[$cnt]}))
+		{
+			$ident = (split //,$ident_seed)[$cnt];
+			$checklists{$ident} = $fname;
+			last;
+		}
+	}
+	# この時点で識別子が空＝識別子に使える文字が無かった、ということなので、エラーにして落とす。
+	die "can't define identify code!" if !$ident;
+	
+}
+
+my %circlelist;
+
+# リストファイルを1個づつ読んで、サークルリストを抽出
+my $csv = Text::CSV_XS->new({binary => 1});
+for my $list_ident(keys %checklists)
+{
+	my $fh_csv = IO::File->new($checklists{$list_ident},"<:encoding(MS932)") or die;
+
+	while(!$fh_csv->eof)
+	{
+		my $checklist = $csv->getline($fh_csv);
+		next if $checklist->[0] ne 'Circle';
+		# メモの頭に識別子をくっつける
+		$checklist->[17] = "${list_ident}: ".$checklist->[17];
+		# メモ中の改行を取り除く
+		$checklist->[17] =~ s/\r\n//g;
+
+		# 2個目のフィールドに入っているIDをキーにして、splitしたデータをハッシュに突っ込む
+		# もし既に突っ込んでいる場合は、メモの部分を追記するだけにしておく
+		if(exists($circlelist{$checklist->[1]}))
+		{
+			$circlelist{$checklist->[1]}->[17] .= "\r\n".$checklist->[17];
+		}
+		else
+		{
+			$circlelist{$checklist->[1]} = $checklist;
+		}
+	}
+}
+
+# チェックリストのヘッダを出力
+my $fh_merged_csv = IO::File->new("merged.csv",">:encoding(MS932)") or die;
+print $fh_merged_csv <<EOS;
+Header,ComicMarketCD-ROMCatalog,ComicMarket87,Shift_JIS,Windows 1.87.1
+Color,1,4a94ff,4a94ff,
+Color,2,ff00ff,ff00ff,
+Color,3,00f7ff,00f7ff,
+Color,4,4ab500,4ab500,
+Color,5,ffb500,ffb500,
+Color,6,9c529c,9c529c,
+Color,7,ff0000,ff0000,
+Color,8,00ff00,00ff00,
+Color,9,0000ff,0000ff,
+EOS
+
+# チェックリスト本体を出力
+for my $circle_id(keys %circlelist)
+{
+	$csv->print($fh_merged_csv,$circlelist{$circle_id});
+}
