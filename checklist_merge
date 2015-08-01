@@ -35,9 +35,9 @@ while(my $fname = shift)
 }
 
 my %circlelist;
+my $csv = Text::CSV_XS->new({binary => 1, eol => "\r\n"});
 
 # リストファイルを1個づつ読んで、サークルリストを抽出
-my $csv = Text::CSV_XS->new({binary => 1, eol => "\r\n"});
 for my $list_ident(keys %checklists)
 {
 	my $fh_csv = IO::File->new($checklists{$list_ident},"<:encoding(MS932)") or die;
@@ -64,20 +64,19 @@ for my $list_ident(keys %checklists)
 	}
 }
 
-# チェックリストのヘッダを出力
 my $fh_merged_csv = IO::File->new("merged.csv",">:encoding(MS932)") or die;
-print $fh_merged_csv <<EOS;
-Header,ComicMarketCD-ROMCatalog,ComicMarket87,Shift_JIS,Windows 1.87.1
-Color,1,4a94ff,4a94ff,
-Color,2,ff00ff,ff00ff,
-Color,3,00f7ff,00f7ff,
-Color,4,4ab500,4ab500,
-Color,5,ffb500,ffb500,
-Color,6,9c529c,9c529c,
-Color,7,ff0000,ff0000,
-Color,8,00ff00,00ff00,
-Color,9,0000ff,0000ff,
-EOS
+
+# チェックリストのヘッダを出力 やっつけなのでどうにかしたい。
+$csv->print($fh_merged_csv,['Header','ComicMarketCD-ROMCatalog','ComicMarket88','Shift_JIS','Windows 1.88.1']);
+$csv->print($fh_merged_csv,['Color','1','4a94ff','4a94ff','']);
+$csv->print($fh_merged_csv,['Color','2','ff00ff','ff00ff','']);
+$csv->print($fh_merged_csv,['Color','3','00f7ff','00f7ff','']);
+$csv->print($fh_merged_csv,['Color','4','4ab500','4ab500','']);
+$csv->print($fh_merged_csv,['Color','5','ffb500','ffb500','']);
+$csv->print($fh_merged_csv,['Color','6','9c529c','9c529c','']);
+$csv->print($fh_merged_csv,['Color','7','ff0000','ff0000','']);
+$csv->print($fh_merged_csv,['Color','8','00ff00','00ff00','']);
+$csv->print($fh_merged_csv,['Color','9','0000ff','0000ff','']);
 
 # チェックリスト本体を出力
 for my $circle_id(keys %circlelist)
