@@ -37,7 +37,7 @@ while(my $fname = shift)
 my %circlelist;
 
 # リストファイルを1個づつ読んで、サークルリストを抽出
-my $csv = Text::CSV_XS->new({binary => 1});
+my $csv = Text::CSV_XS->new({binary => 1, eol => "\r\n"});
 for my $list_ident(keys %checklists)
 {
 	my $fh_csv = IO::File->new($checklists{$list_ident},"<:encoding(MS932)") or die;
