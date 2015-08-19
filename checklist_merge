@@ -45,7 +45,12 @@ for my $list_ident(keys %checklists)
 	while(!$fh_csv->eof)
 	{
 		my $checklist = $csv->getline($fh_csv);
+
+		# サークルリスト以外は取り除く
 		next if $checklist->[0] ne 'Circle';
+		# チェックされてないサークルは取り除く
+		next if $checklist->[2] eq '0';
+
 		# メモの頭に識別子をくっつける
 		$checklist->[17] = "${list_ident}: ".$checklist->[17];
 		# メモ中の改行を取り除く
