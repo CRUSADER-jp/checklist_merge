@@ -60,6 +60,9 @@ for my $list_ident(keys %checklists)
 		# もし既に突っ込んでいる場合は、メモの部分を追記するだけにしておく
 		if(exists($circlelist{$checklist->[1]}))
 		{
+			# 2人以上チェックしてる場合は先頭に★マークを付ける
+			$circlelist{$checklist->[1]}->[17] = '★' . $circlelist{$checklist->[1]}->[17];
+
 			$circlelist{$checklist->[1]}->[17] .= "\r\n".$checklist->[17];
 		}
 		else
