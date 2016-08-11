@@ -75,7 +75,7 @@ for my $list_ident(keys %checklists)
 my $fh_merged_csv = IO::File->new("merged.csv",">:encoding(MS932)") or die;
 
 # チェックリストのヘッダを出力 やっつけなのでどうにかしたい。
-$csv->print($fh_merged_csv,['Header','ComicMarketCD-ROMCatalog','ComicMarket88','Shift_JIS','Windows 1.88.1']);
+$csv->print($fh_merged_csv,['Header','ComicMarketCD-ROMCatalog','ComicMarket90','Shift_JIS','Windows 1.90.1']);
 $csv->print($fh_merged_csv,['Color','1','4a94ff','4a94ff','']);
 $csv->print($fh_merged_csv,['Color','2','ff00ff','ff00ff','']);
 $csv->print($fh_merged_csv,['Color','3','00f7ff','00f7ff','']);
